@@ -1,0 +1,36 @@
+tr namd {
+    site hopper {
+        pfn "/usr/common/usg/namd/2.9/bin/namd2"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+
+tr amber::ptraj {
+    site hopper {
+        pfn "/global/common/hopper2/usg/amber/11/bin/ptraj"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+
+tr sassena {
+    site hopper {
+        pfn "/global/project/projectdirs/m1503/camm/sassena-v1.4.1/builds/head/sassena"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+
+tr tar {
+    site hopper {
+        pfn "/bin/tar"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+

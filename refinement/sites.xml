@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitecatalog xmlns="http://pegasus.isi.edu/schema/sitecatalog"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://pegasus.isi.edu/schema/sitecatalog http://pegasus.isi.edu/schema/sc-4.0.xsd"
+             version="4.0">
+
+    <site handle="local" arch="x86_64" os="LINUX">
+    </site>
+
+    <site handle="hopper" arch="x86_64" os="LINUX">
+        <grid type="gt5" contact="hoppergrid.nersc.gov/jobmanager" scheduler="Fork" jobtype="auxillary"/>
+        <grid type="gt5" contact="hoppergrid.nersc.gov/jobmanager-pbs" scheduler="PBS" jobtype="compute"/>
+        <directory type="shared-scratch" path="/scratch/scratchdirs/juve">
+            <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/scratch/scratchdirs/juve"/>
+        </directory>
+        <directory type="shared-storage" path="/project/projectdirs/m1503/juve">
+            <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/project/projectdirs/m1503/juve" />
+        </directory>
+        <profile namespace="env" key="PEGASUS_HOME">/</profile>
+        <profile namespace="globus" key="project">m1503</profile>
+        <profile namespace="globus" key="queue">regular</profile>
+    </site>
+</sitecatalog>

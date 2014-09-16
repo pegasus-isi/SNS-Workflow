@@ -1,0 +1,3 @@
+trajin {trajectory_input}
+rms first out {trajectory_fit} time 1.0
+trajout {trajectory_output} charmm
