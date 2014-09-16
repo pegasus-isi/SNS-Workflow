@@ -13,10 +13,10 @@
         <directory type="shared-scratch" path="/scratch/scratchdirs/juve">
             <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/scratch/scratchdirs/juve"/>
         </directory>
-        <directory type="shared-storage" path="/project/projectdirs/m1503/juve">
-            <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/project/projectdirs/m1503/juve" />
+        <directory type="shared-storage" path="/project/projectdirs/m1503/pegasus">
+            <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/project/projectdirs/m1503/pegasus" />
         </directory>
-        <profile namespace="env" key="PEGASUS_HOME">/</profile>
+        <profile namespace="env" key="PEGASUS_HOME">/project/projectdirs/m1503/pegasus/pegasus-4.4.0</profile>
         <profile namespace="globus" key="project">m1503</profile>
         <profile namespace="globus" key="queue">regular</profile>
     </site>
