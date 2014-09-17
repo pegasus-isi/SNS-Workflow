@@ -8,6 +8,7 @@ DAXGEN_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(DAXGEN_DIR, "templates")
 
 def format_template(name, outfile, **kwargs):
+    "This fills in the values for the template called 'name' and writes it to 'outfile'"
     templatefile = os.path.join(TEMPLATE_DIR, name)
     template = open(templatefile).read()
     formatter = string.Formatter()
@@ -20,11 +21,13 @@ def format_template(name, outfile, **kwargs):
 
 class RefinementWorkflow(object):
     def __init__(self, outdir, config):
+        "'outdir' is the directory where the workflow is written, and 'config' is a ConfigParser object"
         self.outdir = outdir
         self.config = config
         self.daxfile = os.path.join(self.outdir, "dax.xml")
         self.replicas = {}
 
+        # Get all the values from the config file
         self.temperatures = [x.strip() for x in config.get("simulation", "temperatures").split(",")]
         self.equilibrate_steps = config.get("simulation", "equilibrate_steps")
         self.production_steps = config.get("simulation", "production_steps")
@@ -40,10 +43,12 @@ class RefinementWorkflow(object):
         self.coherent_db = "database/db-neutron-coherent.xml"
 
     def add_replica(self, name, path):
+        "Add a replica entry to the replica catalog for the workflow"
         url = "file://%s" % path
         self.replicas[name] = url
 
     def generate_replica_catalog(self):
+        "Write the replica catalog for this workflow to a file"
         path = os.path.join(self.outdir, "rc.txt")
         f = open(path, "w")
         try:
@@ -53,6 +58,7 @@ class RefinementWorkflow(object):
             f.close()
 
     def generate_eq_conf(self, temperature):
+        "Generate an equilibrate configuration file for 'temperature'"
         name = "equilibrate_%s.conf" % temperature
         path = os.path.join(self.outdir, name)
         kw = {
@@ -70,6 +76,7 @@ class RefinementWorkflow(object):
         self.add_replica(name, path)
 
     def generate_prod_conf(self, temperature):
+        "Generate a production configuration file for 'temperature'"
         name = "production_%s.conf" % temperature
         path = os.path.join(self.outdir, name)
         kw = {
@@ -87,6 +94,7 @@ class RefinementWorkflow(object):
         self.add_replica(name, path)
 
     def generate_ptraj_conf(self, temperature):
+        "Generate a ptraj configuration file for 'temperature'"
         name = "ptraj_%s.conf" % temperature
         path = os.path.join(self.outdir, name)
         kw = {
@@ -98,6 +106,7 @@ class RefinementWorkflow(object):
         self.add_replica(name, path)
 
     def generate_incoherent_conf(self, temperature):
+        "Generate a sassena incoherent config file for 'temperature'"
         name = "sassenaInc_%s.xml" % temperature
         path = os.path.join(self.outdir, name)
         kw = {
@@ -110,6 +119,7 @@ class RefinementWorkflow(object):
         self.add_replica(name, path)
 
     def generate_coherent_conf(self, temperature):
+        "Generate a sassena coherent config file for 'temperature'"
         name = "sassenaCoh_%s.xml" % temperature
         path = os.path.join(self.outdir, name)
         kw = {
@@ -122,8 +132,10 @@ class RefinementWorkflow(object):
         self.add_replica(name, path)
 
     def generate_workflow(self):
+        "Generate a workflow (DAX, config files, and replica catalog)"
         dax = ADAG("refinement")
 
+        # These are all the global input files for the workflow
         structure = File(self.structure)
         coordinates = File(self.coordinates)
         parameters = File(self.parameters)
@@ -133,6 +145,8 @@ class RefinementWorkflow(object):
         incoherent_db = File(self.incoherent_db)
         coherent_db = File(self.coherent_db)
 
+        # This job untars the sassena db and makes it available to the other
+        # jobs in the workflow
         untarjob = Job("tar", node_label="untar")
         untarjob.addArguments("-xzvf", sassena_db)
         untarjob.uses(sassena_db, link=Link.INPUT)
@@ -143,7 +157,9 @@ class RefinementWorkflow(object):
         untarjob.profile("globus", "count", "1")
         dax.addJob(untarjob)
 
+        # For each temperature that was listed in the config file
         for temperature in self.temperatures:
+
             # Equilibrate files
             eq_conf = File("equilibrate_%s.conf" % temperature)
             eq_coord = File("equilibrate_%s.restart.coord" % temperature)
@@ -167,7 +183,7 @@ class RefinementWorkflow(object):
             coherent_conf = File("sassenaCoh_%s.xml" % temperature)
             fqt_coherent = File("fqt_coh_%s.hd5" % temperature)
 
-            # Generate configuration files for this pipeline
+            # Generate configuration files for this temperature pipeline
             self.generate_eq_conf(temperature)
             self.generate_prod_conf(temperature)
             self.generate_ptraj_conf(temperature)
@@ -252,8 +268,10 @@ class RefinementWorkflow(object):
             dax.depends(cojob, prodjob)
             dax.depends(cojob, untarjob)
 
+        # Write the DAX file
         dax.writeXMLFile(self.daxfile)
 
+        # Finally, generate the replica catalog
         self.generate_replica_catalog()
 
 def main():
@@ -269,12 +287,15 @@ def main():
     if os.path.isdir(outdir):
         raise Exception("Directory exists: %s" % outdir)
 
+    # Create the output directory
     outdir = os.path.abspath(outdir)
     os.makedirs(outdir)
 
+    # Read the config file
     config = ConfigParser()
     config.read(configfile)
 
+    # Generate the workflow in outdir based on the config file
     workflow = RefinementWorkflow(outdir, config)
     workflow.generate_workflow()
 
