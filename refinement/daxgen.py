@@ -47,7 +47,7 @@ class RefinementWorkflow(object):
         f = open(path, "w")
         try:
             for name, url in self.replicas.items():
-                f.write('%s    %s    pool="local"\n' % (name, url))
+                f.write('%-30s %-100s pool="local"\n' % (name, url))
         finally:
             f.close()
 
