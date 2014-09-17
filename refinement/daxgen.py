@@ -132,7 +132,7 @@ class RefinementWorkflow(object):
         incoherent_db = File(self.incoherent_db)
         coherent_db = File(self.coherent_db)
 
-        untarjob = Job("tar")
+        untarjob = Job("tar", node_label="untar")
         untarjob.addArguments("-xzvf", sassena_db)
         untarjob.uses(sassena_db, link=Link.INPUT)
         untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=False)
@@ -174,7 +174,7 @@ class RefinementWorkflow(object):
             self.generate_coherent_conf(temperature)
 
             # Equilibrate job
-            eqjob = Job("namd")
+            eqjob = Job("namd", node_label="namd_eq_%s" % temperature)
             eqjob.addArguments(eq_conf)
             eqjob.uses(eq_conf, link=Link.INPUT)
             eqjob.uses(structure, link=Link.INPUT)
@@ -190,7 +190,7 @@ class RefinementWorkflow(object):
             dax.addJob(eqjob)
 
             # Production job
-            prodjob = Job("namd")
+            prodjob = Job("namd", node_label="namd_prod_%s" % temperature)
             prodjob.addArguments(prod_conf)
             prodjob.uses(prod_conf, link=Link.INPUT)
             prodjob.uses(structure, link=Link.INPUT)
@@ -207,7 +207,7 @@ class RefinementWorkflow(object):
             dax.depends(prodjob, eqjob)
 
             # ptraj job
-            ptrajjob = Job(namespace="amber", name="ptraj")
+            ptrajjob = Job(namespace="amber", name="ptraj", node_label="amber_ptraj_%s" % temperature)
             ptrajjob.addArguments(topfile)
             ptrajjob.setStdin(ptraj_conf)
             ptrajjob.uses(topfile, link=Link.INPUT)
@@ -222,7 +222,7 @@ class RefinementWorkflow(object):
             dax.depends(ptrajjob, prodjob)
 
             # sassena incoherent job
-            incojob = Job("sassena")
+            incojob = Job("sassena", node_label="sassena_inc_%s" % temperature)
             incojob.addArguments("--config", incoherent_conf)
             incojob.uses(incoherent_conf, link=Link.INPUT)
             incojob.uses(ptraj_dcd, link=Link.INPUT)
@@ -236,7 +236,7 @@ class RefinementWorkflow(object):
             dax.depends(incojob, untarjob)
 
             # sassena coherent job
-            cojob = Job("sassena")
+            cojob = Job("sassena", node_label="sassena_coh_%s" % temperature)
             cojob.addArguments("--config", coherent_conf)
             cojob.uses(coherent_conf, link=Link.INPUT)
             cojob.uses(ptraj_dcd, link=Link.INPUT)
