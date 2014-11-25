@@ -1,0 +1,36 @@
+tr namd {
+    site hopper {
+        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-keg"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+
+tr amber::ptraj {
+    site hopper {
+        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-keg"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+
+tr sassena {
+    site hopper {
+        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-keg"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+
+tr tar {
+    site hopper {
+        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-keg"
+        arch "x86_64"
+        os "linux"
+        type "INSTALLED"
+    }
+}
+

@@ -20,7 +20,7 @@ def format_template(name, outfile, **kwargs):
         f.close()
 
 class RefinementWorkflow(object):
-    def __init__(self, outdir, config):
+    def __init__(self, outdir, config, is_synthetic_workflow):
         "'outdir' is the directory where the workflow is written, and 'config' is a ConfigParser object"
         self.outdir = outdir
         self.config = config
@@ -39,8 +39,15 @@ class RefinementWorkflow(object):
         self.topfile = config.get("simulation", "topfile")
         self.extended_system = config.get("simulation", "extended_system")
         self.sassena_db = config.get("simulation", "sassena_db")
+
         self.incoherent_db = "database/db-neutron-incoherent.xml"
         self.coherent_db = "database/db-neutron-coherent.xml"
+
+        self.is_synthetic_workflow = is_synthetic_workflow
+        # if synthetic workflow we do not have database dir        
+        if self.is_synthetic_workflow:
+            self.incoherent_db = "db-neutron-incoherent.xml"
+            self.coherent_db = "db-neutron-coherent.xml"        
 
     def add_replica(self, name, path):
         "Add a replica entry to the replica catalog for the workflow"
@@ -141,14 +148,22 @@ class RefinementWorkflow(object):
         parameters = File(self.parameters)
         extended_system = File(self.extended_system)
         topfile = File(self.topfile)
-        sassena_db = File(self.sassena_db)
+        sassena_db = File(self.sassena_db)        
         incoherent_db = File(self.incoherent_db)
         coherent_db = File(self.coherent_db)
 
         # This job untars the sassena db and makes it available to the other
         # jobs in the workflow
         untarjob = Job("tar", node_label="untar")
-        untarjob.addArguments("-xzvf", sassena_db)
+        if self.is_synthetic_workflow:            
+            untarjob.addArguments("-p", "-xzvf", sassena_db.name)
+            untarjob.addArguments("-a", "tar")            
+            untarjob.addArguments("-G 1024")
+            untarjob.addArguments("-o", incoherent_db.name, coherent_db.name)
+            untarjob.addArguments(self.config.get("keg", "tar-keg-params"))
+        else:
+            untarjob.addArguments("-xzvf", sassena_db)
+
         untarjob.uses(sassena_db, link=Link.INPUT)
         untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=False)
         untarjob.uses(coherent_db, link=Link.OUTPUT, transfer=False)
@@ -192,7 +207,15 @@ class RefinementWorkflow(object):
 
             # Equilibrate job
             eqjob = Job("namd", node_label="namd_eq_%s" % temperature)
-            eqjob.addArguments(eq_conf)
+            if self.is_synthetic_workflow:            
+                eqjob.addArguments("-p", eq_conf)
+                eqjob.addArguments("-a", "namd_eq_%s" % temperature)            
+                eqjob.addArguments("-i", eq_conf.name, structure.name, coordinates.name, parameters.name, extended_system.name)
+                eqjob.addArguments("-o", eq_coord.name, eq_xsc.name, eq_vel.name)
+                eqjob.addArguments(self.config.get("keg", "namd-eq-keg-params"))
+            else:
+                eqjob.addArguments(eq_conf)
+            
             eqjob.uses(eq_conf, link=Link.INPUT)
             eqjob.uses(structure, link=Link.INPUT)
             eqjob.uses(coordinates, link=Link.INPUT)
@@ -201,14 +224,28 @@ class RefinementWorkflow(object):
             eqjob.uses(eq_coord, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=False)
-            eqjob.profile("globus", "jobtype", "mpi")
-            eqjob.profile("globus", "maxwalltime", "60")
-            eqjob.profile("globus", "count", "288")
+            if self.is_synthetic_workflow:
+                # TODO replace this sequential job profile with the mpi one
+                eqjob.profile("globus", "jobtype", "single")
+                eqjob.profile("globus", "maxwalltime", "1")
+                eqjob.profile("globus", "count", "1")
+            else:
+                eqjob.profile("globus", "jobtype", "mpi")
+                eqjob.profile("globus", "maxwalltime", "60")
+                eqjob.profile("globus", "count", "288")
             dax.addJob(eqjob)
 
             # Production job
             prodjob = Job("namd", node_label="namd_prod_%s" % temperature)
-            prodjob.addArguments(prod_conf)
+            if self.is_synthetic_workflow:
+                prodjob.addArguments("-p", prod_conf)
+                prodjob.addArguments("-a", "namd_prod_%s" % temperature)            
+                prodjob.addArguments("-i", prod_conf.name, structure.name, coordinates.name, parameters.name, eq_coord.name, eq_xsc.name, eq_vel.name)
+                prodjob.addArguments("-o", prod_dcd.name)
+                prodjob.addArguments(self.config.get("keg", "namd-prod-keg-params"))
+            else:
+                prodjob.addArguments(prod_conf)
+
             prodjob.uses(prod_conf, link=Link.INPUT)
             prodjob.uses(structure, link=Link.INPUT)
             prodjob.uses(coordinates, link=Link.INPUT)
@@ -217,16 +254,30 @@ class RefinementWorkflow(object):
             prodjob.uses(eq_xsc, link=Link.INPUT)
             prodjob.uses(eq_vel, link=Link.INPUT)
             prodjob.uses(prod_dcd, link=Link.OUTPUT, transfer=True)
-            prodjob.profile("globus", "jobtype", "mpi")
-            prodjob.profile("globus", "maxwalltime", "360")
-            prodjob.profile("globus", "count", "288")
+            if self.is_synthetic_workflow:
+                # TODO replace this sequential job profile with the mpi one
+                prodjob.profile("globus", "jobtype", "single")
+                prodjob.profile("globus", "maxwalltime", "1")
+                prodjob.profile("globus", "count", "1")
+            else:
+                prodjob.profile("globus", "jobtype", "mpi")
+                prodjob.profile("globus", "maxwalltime", "360")
+                prodjob.profile("globus", "count", "288")
             dax.addJob(prodjob)
             dax.depends(prodjob, eqjob)
 
             # ptraj job
             ptrajjob = Job(namespace="amber", name="ptraj", node_label="amber_ptraj_%s" % temperature)
-            ptrajjob.addArguments(topfile)
-            ptrajjob.setStdin(ptraj_conf)
+            if self.is_synthetic_workflow:            
+                ptrajjob.addArguments("-p", topfile)
+                ptrajjob.addArguments("-a", "amber_ptraj_%s" % temperature)            
+                ptrajjob.addArguments("-i", topfile.name, ptraj_conf.name, prod_dcd.name)
+                ptrajjob.addArguments("-o", ptraj_fit.name, ptraj_dcd.name)
+                ptrajjob.addArguments(self.config.get("keg", "amber-ptraj-keg-params"))
+            else:
+                ptrajjob.addArguments(topfile)
+                ptrajjob.setStdin(ptraj_conf)
+
             ptrajjob.uses(topfile, link=Link.INPUT)
             ptrajjob.uses(ptraj_conf, link=Link.INPUT)
             ptrajjob.uses(prod_dcd, link=Link.INPUT)
@@ -240,30 +291,58 @@ class RefinementWorkflow(object):
 
             # sassena incoherent job
             incojob = Job("sassena", node_label="sassena_inc_%s" % temperature)
-            incojob.addArguments("--config", incoherent_conf)
+            if self.is_synthetic_workflow:            
+                incojob.addArguments("-p", "--config", incoherent_conf)
+                incojob.addArguments("-a", "sassena_inc_%s" % temperature)            
+                incojob.addArguments("-i", incoherent_conf.name, ptraj_dcd.name, incoherent_db.name, coordinates.name)
+                incojob.addArguments("-o", fqt_incoherent.name)
+                incojob.addArguments(self.config.get("keg", "sassena-inc-keg-params"))
+            else:
+                incojob.addArguments("--config", incoherent_conf)
+
             incojob.uses(incoherent_conf, link=Link.INPUT)
             incojob.uses(ptraj_dcd, link=Link.INPUT)
             incojob.uses(incoherent_db, link=Link.INPUT)
             incojob.uses(coordinates, link=Link.INPUT)
             incojob.uses(fqt_incoherent, link=Link.OUTPUT, transfer=True)
-            incojob.profile("globus", "jobtype", "mpi")
-            incojob.profile("globus", "maxwalltime", "360")
-            incojob.profile("globus", "count", "144")
+            if self.is_synthetic_workflow:
+                # TODO replace this sequential job profile with the mpi one
+                incojob.profile("globus", "jobtype", "single")
+                incojob.profile("globus", "maxwalltime", "1")
+                incojob.profile("globus", "count", "1")
+            else:
+                incojob.profile("globus", "jobtype", "mpi")
+                incojob.profile("globus", "maxwalltime", "360")
+                incojob.profile("globus", "count", "144")
             dax.addJob(incojob)
             dax.depends(incojob, ptrajjob)
             dax.depends(incojob, untarjob)
 
             # sassena coherent job
             cojob = Job("sassena", node_label="sassena_coh_%s" % temperature)
-            cojob.addArguments("--config", coherent_conf)
+            if self.is_synthetic_workflow:            
+                cojob.addArguments("-p", "--config", coherent_conf)
+                cojob.addArguments("-a", "sassena_coh_%s" % temperature)            
+                cojob.addArguments("-i", coherent_conf.name, ptraj_dcd.name, coherent_db.name, coordinates.name)
+                cojob.addArguments("-o", fqt_coherent.name)
+                cojob.addArguments(self.config.get("keg", "sassena-coh-keg-params"))
+            else:
+                cojob.addArguments("--config", coherent_conf)
+
             cojob.uses(coherent_conf, link=Link.INPUT)
             cojob.uses(ptraj_dcd, link=Link.INPUT)
             cojob.uses(coherent_db, link=Link.INPUT)
             cojob.uses(coordinates, link=Link.INPUT)
             cojob.uses(fqt_coherent, link=Link.OUTPUT, transfer=True)
-            cojob.profile("globus", "jobtype", "mpi")
-            cojob.profile("globus", "maxwalltime", "360")
-            cojob.profile("globus", "count", "144")
+            if self.is_synthetic_workflow:
+                # TODO replace this sequential job profile with the mpi one
+                cojob.profile("globus", "jobtype", "single")
+                cojob.profile("globus", "maxwalltime", "1")
+                cojob.profile("globus", "count", "1")                
+            else:
+                cojob.profile("globus", "jobtype", "mpi")
+                cojob.profile("globus", "maxwalltime", "360")
+                cojob.profile("globus", "count", "144")
             dax.addJob(cojob)
             dax.depends(cojob, prodjob)
             dax.depends(cojob, untarjob)
@@ -275,11 +354,17 @@ class RefinementWorkflow(object):
         self.generate_replica_catalog()
 
 def main():
-    if len(sys.argv) != 3:
-        raise Exception("Usage: %s CONFIGFILE OUTDIR" % sys.argv[0])
+    if len(sys.argv) < 3:
+        raise Exception("Usage: %s --synthetic CONFIGFILE OUTDIR" % sys.argv[0])
 
-    configfile = sys.argv[1]
-    outdir = sys.argv[2]
+    is_synthetic_workflow = (sys.argv[1] == "--synthetic")
+
+    if is_synthetic_workflow:
+        configfile = sys.argv[2]
+        outdir = sys.argv[3]
+    else:
+        configfile = sys.argv[1]
+        outdir = sys.argv[2]
 
     if not os.path.isfile(configfile):
         raise Exception("No such file: %s" % configfile)
@@ -296,7 +381,7 @@ def main():
     config.read(configfile)
 
     # Generate the workflow in outdir based on the config file
-    workflow = RefinementWorkflow(outdir, config)
+    workflow = RefinementWorkflow(outdir, config, is_synthetic_workflow)
     workflow.generate_workflow()
 
 

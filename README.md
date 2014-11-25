@@ -8,10 +8,23 @@ Usage
 2. Run daxgen.py to generate workflow in a given directory (e.g. myrun):
 
     $ python daxgen.py test.cfg myrun
+    
+    or
+    
+    $ python --synthetic daxgen.py test.cfg myrun
+
+    to generate a synthetic version of workflow.
+
 
 3. Run plan.sh to plan workflow:
 
     $ ./plan.sh myrun
+
+    or
+
+	$ ./plan.sh myrun tc-fake.txt
+
+	to plan a synthetic version of workflow.
 
 4. Get NERSC grid proxy using:
 
