@@ -225,10 +225,9 @@ class RefinementWorkflow(object):
             eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=False)
             if self.is_synthetic_workflow:
-                # TODO replace this sequential job profile with the mpi one
-                eqjob.profile("globus", "jobtype", "single")
+                eqjob.profile("globus", "jobtype", "mpi")
                 eqjob.profile("globus", "maxwalltime", "1")
-                eqjob.profile("globus", "count", "1")
+                eqjob.profile("globus", "count", "8")
             else:
                 eqjob.profile("globus", "jobtype", "mpi")
                 eqjob.profile("globus", "maxwalltime", "60")
@@ -255,10 +254,9 @@ class RefinementWorkflow(object):
             prodjob.uses(eq_vel, link=Link.INPUT)
             prodjob.uses(prod_dcd, link=Link.OUTPUT, transfer=True)
             if self.is_synthetic_workflow:
-                # TODO replace this sequential job profile with the mpi one
-                prodjob.profile("globus", "jobtype", "single")
-                prodjob.profile("globus", "maxwalltime", "1")
-                prodjob.profile("globus", "count", "1")
+                prodjob.profile("globus", "jobtype", "mpi")
+                prodjob.profile("globus", "maxwalltime", "6")
+                prodjob.profile("globus", "count", "8")
             else:
                 prodjob.profile("globus", "jobtype", "mpi")
                 prodjob.profile("globus", "maxwalltime", "360")
@@ -306,10 +304,9 @@ class RefinementWorkflow(object):
             incojob.uses(coordinates, link=Link.INPUT)
             incojob.uses(fqt_incoherent, link=Link.OUTPUT, transfer=True)
             if self.is_synthetic_workflow:
-                # TODO replace this sequential job profile with the mpi one
-                incojob.profile("globus", "jobtype", "single")
-                incojob.profile("globus", "maxwalltime", "1")
-                incojob.profile("globus", "count", "1")
+                incojob.profile("globus", "jobtype", "mpi")
+                incojob.profile("globus", "maxwalltime", "6")
+                incojob.profile("globus", "count", "8")
             else:
                 incojob.profile("globus", "jobtype", "mpi")
                 incojob.profile("globus", "maxwalltime", "360")
@@ -335,10 +332,9 @@ class RefinementWorkflow(object):
             cojob.uses(coordinates, link=Link.INPUT)
             cojob.uses(fqt_coherent, link=Link.OUTPUT, transfer=True)
             if self.is_synthetic_workflow:
-                # TODO replace this sequential job profile with the mpi one
-                cojob.profile("globus", "jobtype", "single")
-                cojob.profile("globus", "maxwalltime", "1")
-                cojob.profile("globus", "count", "1")                
+                cojob.profile("globus", "jobtype", "mpi")
+                cojob.profile("globus", "maxwalltime", "6")
+                cojob.profile("globus", "count", "8")                
             else:
                 cojob.profile("globus", "jobtype", "mpi")
                 cojob.profile("globus", "maxwalltime", "360")

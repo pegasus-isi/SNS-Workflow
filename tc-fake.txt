@@ -1,6 +1,6 @@
 tr namd {
     site hopper {
-        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-keg"
+        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-mpi-keg"
         arch "x86_64"
         os "linux"
         type "INSTALLED"
@@ -18,7 +18,7 @@ tr amber::ptraj {
 
 tr sassena {
     site hopper {
-        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-keg"
+        pfn "/project/projectdirs/m2187/pegasus/pegasus-4.4.0/bin/pegasus-mpi-keg"
         arch "x86_64"
         os "linux"
         type "INSTALLED"

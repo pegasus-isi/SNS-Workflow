@@ -11,7 +11,7 @@ Usage
     
     or
     
-    $ python --synthetic daxgen.py test.cfg myrun
+    $ python daxgen.py --synthetic test.cfg myrun
 
     to generate a synthetic version of workflow.
 
