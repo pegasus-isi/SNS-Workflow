@@ -17,7 +17,7 @@ class KegParametersFactory:
 			file_real_path = filename
 
 		if not self.config.has_option("keg-%s" % task, filename):
-			print "We have not found option ", "keg-%s" % task, filename
+			# print "We have not found option ", "keg-%s" % task, filename
 			return "-o {0}".format(file_real_path)
 
 		output_params = ast.literal_eval(self.config.get("keg-%s" % task, filename))
@@ -52,9 +52,10 @@ class KegParametersFactory:
 	    if not job_label:
 	        job_label = job.node_label
 
-	    for output_file in filter( (lambda x: x.link == Link.OUTPUT), job.used ):
-	        print "Job label:", job_label, "\t Output file name:", output_file.name
-	        job.addArguments(self.output_file( job_label, output_file.name ))
+	    # Adding output files based on links defined in a job
+	    # for output_file in filter( (lambda x: x.link == Link.OUTPUT), job.used ):
+	    #     print "Job label:", job_label, "\t Output file name:", output_file.name
+	    #     job.addArguments(self.output_file( job_label, output_file.name ))
 
 	    for performance_parameter in [ "cpu_time", "wall_time" ]:
 	        job.addArguments(self.performance_attr( job_label, performance_parameter ))

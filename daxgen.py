@@ -163,7 +163,7 @@ class RefinementWorkflow(object):
             untarjob.addArguments("-a", "tar")
 
             for output_file in [ "incoherent_db", "coherent_db" ]:
-                eqjob.addArguments(self.keg_params.output_file( "untar", output_file, eval(output_file).name ))
+                untarjob.addArguments(self.keg_params.output_file( "tar", output_file, eval(output_file).name ))
 
             self.keg_params.add_keg_params(untarjob)
         else:
@@ -278,7 +278,7 @@ class RefinementWorkflow(object):
                 prodjob.profile("globus", "jobtype", "mpi")
                 prodjob.profile("globus", "maxwalltime", "360")
                 prodjob.profile("globus", "count", "288")
-                
+
             dax.addJob(prodjob)
             dax.depends(prodjob, eqjob)
 
@@ -293,7 +293,7 @@ class RefinementWorkflow(object):
                 task_label = "amber-ptraj-%s" % idx
                 
                 for output_file in [ "ptraj_fit", "ptraj_dcd" ]:
-                    ptrajjob.addArguments(self.keg_params.output_file( task_label, output_file, eval(input_file).name ))
+                    ptrajjob.addArguments(self.keg_params.output_file( task_label, output_file, eval(output_file).name ))
 
                 self.keg_params.add_keg_params(ptrajjob, task_label)
 
