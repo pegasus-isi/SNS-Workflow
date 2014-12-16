@@ -62,10 +62,10 @@ class RefinementWorkflow(object):
         name = "Q%s.psf" % charge
         path = os.path.join(self.outdir, name)
         kw = {
-            "charge": str(0.01 * float(charge)),
-            "charge2": str(-0.02 * float(charge)),
+            "charge": "%10.6f" % (0.01 * float(charge)),
+            "charge2": "%10.6f" % (-0.02 * float(charge))
         }
-        format_template("ce1.xml", path, **kw)
+        format_template("charge.xml", path, **kw)
         self.add_replica(name, path)
 
     def generate_eq_conf(self, charge, structure):
@@ -171,7 +171,7 @@ class RefinementWorkflow(object):
         # For each charge that was listed in the config file
         for charge in self.charges:
 
-            structure = File("Q%s.psf" % charge)
+            structure = "Q%s.psf" % charge
 
             # Equilibrate files
             eq_conf = File("equilibrate_%s.conf" % charge)
