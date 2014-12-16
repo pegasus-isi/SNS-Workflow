@@ -11,6 +11,7 @@ class KegParametersFactory:
 
 	def __init__(self, config):
 		self.config = config
+		numpy.random.seed()
 
 	def output_file(self, task, filename, file_real_path=""):
 		if not file_real_path:
@@ -26,6 +27,27 @@ class KegParametersFactory:
 
 		return "-o {filename}={filesize}{size_unit}".format(filename=file_real_path, filesize=random_value, 
 			size_unit=output_params['size_unit'])
+
+	def generate_input_file(self, file_label, filepath):
+		if self.config.has_option("keg-input-files", file_label):
+			input_file_params = ast.literal_eval(self.config.get("keg-input-files", file_label))
+			distribution = getattr(numpy.random, input_file_params['distribution'])
+			random_size = int(round( distribution(*input_file_params['dist_params']) )) 
+			size_units = { "B": 1, "K": 1024, "M": 1024*1024, "G": 1024*1024*1024  }
+
+			print "Writing file with random size ", filepath
+
+			f = open(filepath,"wb")
+			f.seek(random_size * size_units[input_file_params['size_unit']] - 1)
+			f.write("\0")
+			f.close()
+		else:
+			print "Writing file with concrete size ", filepath
+
+			f = open(filepath,"wb")
+			f.seek(1024 - 1)
+			f.write("\0")
+			f.close()
 
 	def performance_attr(self, task, param):
 		if not self.config.has_option("keg-%s" % task, param):

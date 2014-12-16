@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import string
+import os
 from ConfigParser import ConfigParser
 from Pegasus.DAX3 import *
 from kegparametersfactory import KegParametersFactory
@@ -49,7 +50,14 @@ class RefinementWorkflow(object):
         if self.is_synthetic_workflow:
             self.incoherent_db = "db-neutron-incoherent.xml"
             self.coherent_db = "db-neutron-coherent.xml"
-            self.keg_params = KegParametersFactory(self.config)        
+            self.keg_params = KegParametersFactory(self.config)
+
+            # mocking input files
+            for input_file in [ "structure", "coordinates", "parameters",
+                "topfile", "extended_system", "sassena_db" ]:
+                self.__dict__[input_file] = input_file + "_mock"
+                mock_path = os.path.join("inputs", input_file + "_mock")
+                self.keg_params.generate_input_file( input_file, mock_path )
 
     def add_replica(self, name, path):
         "Add a replica entry to the replica catalog for the workflow"
@@ -180,7 +188,7 @@ class RefinementWorkflow(object):
         dax.addJob(untarjob)
 
         # For each temperature that was listed in the config file
-        for idx, temperature in enumerate(self.temperatures):            
+        for temperature in self.temperatures:
 
             # Equilibrate files
             eq_conf = File("equilibrate_%s.conf" % temperature)
@@ -217,9 +225,10 @@ class RefinementWorkflow(object):
             if self.is_synthetic_workflow:                            
                 eqjob.addArguments("-p", eq_conf)
                 eqjob.addArguments("-a", "namd_eq_%s" % temperature)            
-                eqjob.addArguments("-i", eq_conf.name, structure.name, coordinates.name, parameters.name, extended_system.name)
+                eqjob.addArguments("-i", eq_conf.name, structure.name, coordinates.name, 
+                    parameters.name, extended_system.name)
 
-                task_label = "namd-eq-%s" % idx
+                task_label = "namd-eq"
 
                 for output_file in [ "eq_coord", "eq_xsc", "eq_vel" ]:
                     eqjob.addArguments(self.keg_params.output_file( task_label, output_file, eval(output_file).name ))
@@ -255,7 +264,7 @@ class RefinementWorkflow(object):
                 prodjob.addArguments("-i", prod_conf.name, structure.name, coordinates.name, 
                     parameters.name, eq_coord.name, eq_xsc.name, eq_vel.name)
 
-                task_label = "namd-prod-%s" % idx
+                task_label = "namd-prod"
                 prodjob.addArguments(self.keg_params.output_file( task_label, "prod_dcd", prod_dcd.name ))
                 self.keg_params.add_keg_params(prodjob, task_label)
             else:
@@ -290,7 +299,7 @@ class RefinementWorkflow(object):
                 ptrajjob.addArguments("-a", "amber_ptraj_%s" % temperature)            
                 ptrajjob.addArguments("-i", topfile.name, ptraj_conf.name, prod_dcd.name)
 
-                task_label = "amber-ptraj-%s" % idx
+                task_label = "amber-ptraj"
                 
                 for output_file in [ "ptraj_fit", "ptraj_dcd" ]:
                     ptrajjob.addArguments(self.keg_params.output_file( task_label, output_file, eval(output_file).name ))
@@ -319,7 +328,7 @@ class RefinementWorkflow(object):
                 incojob.addArguments("-a", "sassena_inc_%s" % temperature)            
                 incojob.addArguments("-i", incoherent_conf.name, ptraj_dcd.name, incoherent_db.name, coordinates.name)
 
-                task_label = "sassena-inc-%s" % idx
+                task_label = "sassena-inc"
                 
                 incojob.addArguments(self.keg_params.output_file( task_label, "fqt_incoherent", fqt_incoherent.name ))
 
@@ -353,7 +362,7 @@ class RefinementWorkflow(object):
                 cojob.addArguments("-a", "sassena_coh_%s" % temperature)            
                 cojob.addArguments("-i", coherent_conf.name, ptraj_dcd.name, coherent_db.name, coordinates.name)
 
-                task_label = "sassena-coh-%s" % idx
+                task_label = "sassena-coh"
                 
                 cojob.addArguments(self.keg_params.output_file( task_label, "fqt_coherent", fqt_coherent.name ))
 
