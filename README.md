@@ -28,12 +28,8 @@ Usage
 
     $ ./plan.sh myrun
 
-    or
-
-	$ ./plan.sh myrun tc-fake.txt
-
-	to plan a synthetic version of workflow.
-
+    NOTE: be sure to have all pfns in tc.txt file set to pegasus(-mpi)-keg when planning a synthetic workflow.
+    
 4. Get NERSC grid proxy using:
 
     $ myproxy-logon -s nerscca.nersc.gov:7512 -t 720 -T -l YOUR_NERSC_USERNAME
