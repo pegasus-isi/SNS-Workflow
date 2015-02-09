@@ -4,6 +4,7 @@ tr namd {
         arch "x86_64"
         os "linux"
         type "INSTALLED"
+        profile pegasus "exitcode.successmsg" "End of program"
     }
 }
 
@@ -13,6 +14,8 @@ tr amber::ptraj {
         arch "x86_64"
         os "linux"
         type "INSTALLED"
+        profile pegasus "exitcode.successmsg" "Successfully read the input file"
+        profile pegasus "exitcode.successmsg" "Dumping accumulated results"
     }
 }
 
@@ -22,6 +25,7 @@ tr sassena {
         arch "x86_64"
         os "linux"
         type "INSTALLED"
+        profile pegasus "exitcode.successmsg" "Successfully finished..."
     }
 }
 
