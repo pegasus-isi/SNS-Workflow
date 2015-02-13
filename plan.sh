@@ -38,6 +38,5 @@ pegasus-plan \
     --input-dir $INPUT_DIR \
     --sites $SITE \
     --output-site $OUTPUT_SITE \
-    --cleanup leaf \
-    --force
+    --cleanup leaf
 
