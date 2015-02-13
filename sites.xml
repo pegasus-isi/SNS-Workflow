@@ -10,14 +10,14 @@
     <site handle="hopper" arch="x86_64" os="LINUX">
         <grid type="gt5" contact="hoppergrid.nersc.gov/jobmanager" scheduler="Fork" jobtype="auxillary"/>
         <grid type="gt5" contact="hoppergrid.nersc.gov/jobmanager-pbs" scheduler="PBS" jobtype="compute"/>
-        <directory type="shared-scratch" path="/scratch/scratchdirs/juve">
-            <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/scratch/scratchdirs/juve"/>
+        <directory type="shared-scratch" path="REPLACE_WITH_YOUR_SCRATCH_DIR: /scratch/scratchdirs/juve">
+            <file-server operation="all" url="REPLACE_WITH_YOUR_SCRATCH_DIR: gsiftp://hoppergrid.nersc.gov/scratch/scratchdirs/juve"/>
         </directory>
-        <directory type="shared-storage" path="/project/projectdirs/m1503/pegasus">
-            <file-server operation="all" url="gsiftp://hoppergrid.nersc.gov/project/projectdirs/m1503/pegasus" />
+        <directory type="shared-storage" path="REPLACE_WITH_YOUR_STORAGE_DIR: /project/projectdirs/m2187/sns/juve/run5">
+            <file-server operation="all" url="REPLACE_WITH_YOUR_STORAGE_DIR: gsiftp://hoppergrid.nersc.gov/project/projectdirs/m2187/sns/juve/run5" />
         </directory>
         <profile namespace="env" key="PEGASUS_HOME">/project/projectdirs/m1503/pegasus/pegasus-4.4.0</profile>
-        <profile namespace="globus" key="project">m1503</profile>
+        <profile namespace="globus" key="project">REPLACE_WITH_YOUR_PROJECT: m2187</profile>
         <profile namespace="globus" key="queue">regular</profile>
     </site>
 </sitecatalog>
