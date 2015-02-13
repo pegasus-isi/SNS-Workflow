@@ -2,6 +2,7 @@
 import sys
 import string
 import os
+import shutil
 from ConfigParser import ConfigParser
 from Pegasus.DAX3 import *
 from kegparametersfactory import KegParametersFactory
@@ -30,23 +31,23 @@ class RefinementWorkflow(object):
         self.replicas = {}
 
         # Get all the values from the config file
-        self.temperatures = [x.strip() for x in config.get("simulation", "temperatures").split(",")]
-        self.equilibrate_steps = config.get("simulation", "equilibrate_steps")
-        self.production_steps = config.get("simulation", "production_steps")
-        self.pressure = config.get("simulation", "pressure")
-        self.charge = config.get("simulation", "charge")
-        self.structure = config.get("simulation", "structure")
-        self.coordinates = config.get("simulation", "coordinates")
-        self.parameters = config.get("simulation", "parameters")
-        self.topfile = config.get("simulation", "topfile")
-        self.extended_system = config.get("simulation", "extended_system")
-        self.sassena_db = config.get("simulation", "sassena_db")
+        self.temperatures = [x.strip() for x in self.getconf("temperatures").split(",")]
+        self.equilibrate_steps = self.getconf("equilibrate_steps")
+        self.production_steps = self.getconf("production_steps")
+        self.pressure = self.getconf("pressure")
+        self.charge = self.getconf("charge")
+        self.structure = self.getconf("structure")
+        self.coordinates = self.getconf("coordinates")
+        self.parameters = self.getconf("parameters")
+        self.topfile = self.getconf("topfile")
+        self.extended_system = self.getconf("extended_system")
+        self.sassena_db = self.getconf("sassena_db")
 
         self.incoherent_db = "database/db-neutron-incoherent.xml"
         self.coherent_db = "database/db-neutron-coherent.xml"
 
         self.is_synthetic_workflow = is_synthetic_workflow
-        # if synthetic workflow we do not have database dir        
+        # if synthetic workflow we do not have database dir
         if self.is_synthetic_workflow:
             self.incoherent_db = "db-neutron-incoherent.xml"
             self.coherent_db = "db-neutron-coherent.xml"
@@ -57,7 +58,10 @@ class RefinementWorkflow(object):
                 "topfile", "extended_system", "sassena_db" ]:
                 self.__dict__[input_file] = input_file + "_mock"
                 mock_path = os.path.join("inputs", input_file + "_mock")
-                self.keg_params.generate_input_file( input_file, mock_path )
+                self.keg_params.generate_input_file(input_file, mock_path)
+
+    def getconf(self, name, section="simulation"):
+        return self.config.get(section, name)
 
     def add_replica(self, name, path):
         "Add a replica entry to the replica catalog for the workflow"
@@ -148,7 +152,7 @@ class RefinementWorkflow(object):
         format_template("sassenaCoh.xml", path, **kw)
         self.add_replica(name, path)
 
-    def generate_workflow(self):
+    def generate_dax(self):
         "Generate a workflow (DAX, config files, and replica catalog)"
         dax = ADAG("refinement")
 
@@ -158,7 +162,7 @@ class RefinementWorkflow(object):
         parameters = File(self.parameters)
         extended_system = File(self.extended_system)
         topfile = File(self.topfile)
-        sassena_db = File(self.sassena_db)        
+        sassena_db = File(self.sassena_db)
         incoherent_db = File(self.incoherent_db)
         coherent_db = File(self.coherent_db)
 
@@ -166,16 +170,16 @@ class RefinementWorkflow(object):
         # jobs in the workflow
         untarjob = Job("tar", node_label="untar")
 
-        if self.is_synthetic_workflow:            
+        if self.is_synthetic_workflow:
             untarjob.addArguments("-p", "-xzvf", sassena_db.name)
             untarjob.addArguments("-a", "tar")
 
             for output_file in [ "incoherent_db", "coherent_db" ]:
-                untarjob.addArguments(self.keg_params.output_file( "tar", output_file, eval(output_file).name ))
+                untarjob.addArguments(self.keg_params.output_file("tar", output_file, eval(output_file).name))
 
             self.keg_params.add_keg_params(untarjob)
         else:
-            untarjob.addArguments("-xzvf", sassena_db)        
+            untarjob.addArguments("-xzvf", sassena_db)
 
         untarjob.uses(sassena_db, link=Link.INPUT)
         untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=False)
@@ -222,21 +226,21 @@ class RefinementWorkflow(object):
 
             # Equilibrate job
             eqjob = Job("namd", node_label="namd_eq_%s" % temperature)
-            if self.is_synthetic_workflow:                            
+            if self.is_synthetic_workflow:
                 eqjob.addArguments("-p", eq_conf)
-                eqjob.addArguments("-a", "namd_eq_%s" % temperature)            
-                eqjob.addArguments("-i", eq_conf.name, structure.name, coordinates.name, 
+                eqjob.addArguments("-a", "namd_eq_%s" % temperature)
+                eqjob.addArguments("-i", eq_conf.name, structure.name, coordinates.name,
                     parameters.name, extended_system.name)
 
                 task_label = "namd-eq"
 
                 for output_file in [ "eq_coord", "eq_xsc", "eq_vel" ]:
-                    eqjob.addArguments(self.keg_params.output_file( task_label, output_file, eval(output_file).name ))
+                    eqjob.addArguments(self.keg_params.output_file(task_label, output_file, eval(output_file).name))
 
                 self.keg_params.add_keg_params(eqjob, task_label)
             else:
                 eqjob.addArguments(eq_conf)
-            
+
             eqjob.uses(eq_conf, link=Link.INPUT)
             eqjob.uses(structure, link=Link.INPUT)
             eqjob.uses(coordinates, link=Link.INPUT)
@@ -251,21 +255,21 @@ class RefinementWorkflow(object):
                 eqjob.profile("globus", "count", "8")
             else:
                 eqjob.profile("globus", "jobtype", "mpi")
-                eqjob.profile("globus", "maxwalltime", "60")
-                eqjob.profile("globus", "count", "288")
+                eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
+                eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
             dax.addJob(eqjob)
 
             # Production job
             prodjob = Job("namd", node_label="namd_prod_%s" % temperature)
-            
-            if self.is_synthetic_workflow:                
+
+            if self.is_synthetic_workflow:
                 prodjob.addArguments("-p", prod_conf)
-                prodjob.addArguments("-a", "namd_prod_%s" % temperature)            
-                prodjob.addArguments("-i", prod_conf.name, structure.name, coordinates.name, 
+                prodjob.addArguments("-a", "namd_prod_%s" % temperature)
+                prodjob.addArguments("-i", prod_conf.name, structure.name, coordinates.name,
                     parameters.name, eq_coord.name, eq_xsc.name, eq_vel.name)
 
                 task_label = "namd-prod"
-                prodjob.addArguments(self.keg_params.output_file( task_label, "prod_dcd", prod_dcd.name ))
+                prodjob.addArguments(self.keg_params.output_file(task_label, "prod_dcd", prod_dcd.name))
                 self.keg_params.add_keg_params(prodjob, task_label)
             else:
                 prodjob.addArguments(prod_conf)
@@ -285,8 +289,8 @@ class RefinementWorkflow(object):
                 prodjob.profile("globus", "count", "8")
             else:
                 prodjob.profile("globus", "jobtype", "mpi")
-                prodjob.profile("globus", "maxwalltime", "360")
-                prodjob.profile("globus", "count", "288")
+                prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
+                prodjob.profile("globus", "count", self.getconf("production_cores"))
 
             dax.addJob(prodjob)
             dax.depends(prodjob, eqjob)
@@ -294,15 +298,15 @@ class RefinementWorkflow(object):
             # ptraj job
             ptrajjob = Job(namespace="amber", name="ptraj", node_label="amber_ptraj_%s" % temperature)
 
-            if self.is_synthetic_workflow:            
+            if self.is_synthetic_workflow:
                 ptrajjob.addArguments("-p", topfile)
-                ptrajjob.addArguments("-a", "amber_ptraj_%s" % temperature)            
+                ptrajjob.addArguments("-a", "amber_ptraj_%s" % temperature)
                 ptrajjob.addArguments("-i", topfile.name, ptraj_conf.name, prod_dcd.name)
 
                 task_label = "amber-ptraj"
-                
+
                 for output_file in [ "ptraj_fit", "ptraj_dcd" ]:
-                    ptrajjob.addArguments(self.keg_params.output_file( task_label, output_file, eval(output_file).name ))
+                    ptrajjob.addArguments(self.keg_params.output_file(task_label, output_file, eval(output_file).name))
 
                 self.keg_params.add_keg_params(ptrajjob, task_label)
 
@@ -316,21 +320,21 @@ class RefinementWorkflow(object):
             ptrajjob.uses(ptraj_fit, link=Link.OUTPUT, transfer=True)
             ptrajjob.uses(ptraj_dcd, link=Link.OUTPUT, transfer=True)
             ptrajjob.profile("globus", "jobtype", "single")
-            ptrajjob.profile("globus", "maxwalltime", "60")
-            ptrajjob.profile("globus", "count", "1")
+            ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime"))
+            ptrajjob.profile("globus", "count", self.getconf("ptraj_cores"))
             dax.addJob(ptrajjob)
             dax.depends(ptrajjob, prodjob)
 
             # sassena incoherent job
             incojob = Job("sassena", node_label="sassena_inc_%s" % temperature)
-            if self.is_synthetic_workflow:            
+            if self.is_synthetic_workflow:
                 incojob.addArguments("-p", "--config", incoherent_conf)
-                incojob.addArguments("-a", "sassena_inc_%s" % temperature)            
+                incojob.addArguments("-a", "sassena_inc_%s" % temperature)
                 incojob.addArguments("-i", incoherent_conf.name, ptraj_dcd.name, incoherent_db.name, coordinates.name)
 
                 task_label = "sassena-inc"
-                
-                incojob.addArguments(self.keg_params.output_file( task_label, "fqt_incoherent", fqt_incoherent.name ))
+
+                incojob.addArguments(self.keg_params.output_file(task_label, "fqt_incoherent", fqt_incoherent.name))
 
                 self.keg_params.add_keg_params(incojob, task_label)
             else:
@@ -348,8 +352,8 @@ class RefinementWorkflow(object):
                 incojob.profile("globus", "count", "8")
             else:
                 incojob.profile("globus", "jobtype", "mpi")
-                incojob.profile("globus", "maxwalltime", "360")
-                incojob.profile("globus", "count", "144")
+                incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
+                incojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             dax.addJob(incojob)
             dax.depends(incojob, ptrajjob)
@@ -357,14 +361,14 @@ class RefinementWorkflow(object):
 
             # sassena coherent job
             cojob = Job("sassena", node_label="sassena_coh_%s" % temperature)
-            if self.is_synthetic_workflow:            
+            if self.is_synthetic_workflow:
                 cojob.addArguments("-p", "--config", coherent_conf)
-                cojob.addArguments("-a", "sassena_coh_%s" % temperature)            
+                cojob.addArguments("-a", "sassena_coh_%s" % temperature)
                 cojob.addArguments("-i", coherent_conf.name, ptraj_dcd.name, coherent_db.name, coordinates.name)
 
                 task_label = "sassena-coh"
-                
-                cojob.addArguments(self.keg_params.output_file( task_label, "fqt_coherent", fqt_coherent.name ))
+
+                cojob.addArguments(self.keg_params.output_file(task_label, "fqt_coherent", fqt_coherent.name))
 
                 self.keg_params.add_keg_params(cojob, task_label)
 
@@ -380,11 +384,11 @@ class RefinementWorkflow(object):
             if self.is_synthetic_workflow:
                 cojob.profile("globus", "jobtype", "mpi")
                 cojob.profile("globus", "maxwalltime", "6")
-                cojob.profile("globus", "count", "8")                
+                cojob.profile("globus", "count", "8")
             else:
                 cojob.profile("globus", "jobtype", "mpi")
-                cojob.profile("globus", "maxwalltime", "360")
-                cojob.profile("globus", "count", "144")
+                cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
+                cojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             dax.addJob(cojob)
             dax.depends(cojob, prodjob)
@@ -393,7 +397,12 @@ class RefinementWorkflow(object):
         # Write the DAX file
         dax.writeXMLFile(self.daxfile)
 
-        # Finally, generate the replica catalog
+    def generate_workflow(self):
+
+        # Generate dax
+        self.generate_dax()
+
+        # Generate the replica catalog
         self.generate_replica_catalog()
 
 def main():
@@ -422,6 +431,9 @@ def main():
     # Read the config file
     config = ConfigParser()
     config.read(configfile)
+
+    # Save a copy of the config file
+    shutil.copy(configfile, outdir)
 
     # Generate the workflow in outdir based on the config file
     workflow = RefinementWorkflow(outdir, config, is_synthetic_workflow)
