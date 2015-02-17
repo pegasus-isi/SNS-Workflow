@@ -2,6 +2,8 @@ import numpy
 import ast
 from Pegasus.DAX3 import *
 
+__ALL__ = ["KegParametersFactory"]
+
 class KegParametersFactory:
 	keg_parameters = {
 		"cpu_time": "-T",

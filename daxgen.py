@@ -3,8 +3,9 @@ import sys
 import string
 import os
 import shutil
+from datetime import datetime
 from ConfigParser import ConfigParser
-from Pegasus.DAX3 import *
+from Pegasus.DAX3 import ADAG, Job, File, Link
 from kegparametersfactory import KegParametersFactory
 
 DAXGEN_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -154,7 +155,8 @@ class RefinementWorkflow(object):
 
     def generate_dax(self):
         "Generate a workflow (DAX, config files, and replica catalog)"
-        dax = ADAG("refinement")
+        ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        dax = ADAG("refinement-%s" % ts)
 
         # These are all the global input files for the workflow
         structure = File(self.structure)
