@@ -10,7 +10,7 @@ tr namd {
 
 tr amber::ptraj {
     site hopper {
-        pfn "/global/common/hopper2/usg/amber/11/bin/ptraj"
+        pfn "/usr/common/usg/amber/14/bin/cpptraj"
         arch "x86_64"
         os "linux"
         type "INSTALLED"
