@@ -326,7 +326,7 @@ class RefinementWorkflow(object):
             # sassena incoherent job
             incojob = Job("sassena", node_label="sassena_inc_%s" % temperature)
             if self.is_synthetic_workflow:
-                incojob.addArguments(self.getconf("sassena_cores"))
+                incojob.addArguments(self.getconf("sassena_cores_synth"))
                 incojob.addArguments("-p", "--config", incoherent_conf)
                 incojob.addArguments("-a", "sassena_inc_%s" % temperature)
                 incojob.addArguments("-i", incoherent_conf.name, ptraj_dcd.name, incoherent_db.name, coordinates.name)
@@ -358,7 +358,7 @@ class RefinementWorkflow(object):
             # sassena coherent job
             cojob = Job("sassena", node_label="sassena_coh_%s" % temperature)
             if self.is_synthetic_workflow:
-                cojob.addArguments(self.getconf("sassena_cores"))
+                cojob.addArguments(self.getconf("sassena_cores_synth"))
                 cojob.addArguments("-p", "--config", coherent_conf)
                 cojob.addArguments("-a", "sassena_coh_%s" % temperature)
                 cojob.addArguments("-i", coherent_conf.name, ptraj_dcd.name, coherent_db.name, coordinates.name)
