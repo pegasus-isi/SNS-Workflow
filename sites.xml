@@ -18,6 +18,5 @@
         </directory>
         <profile namespace="env" key="PEGASUS_HOME">/project/projectdirs/m1503/pegasus/pegasus-4.4.0</profile>
         <profile namespace="globus" key="project">REPLACE_WITH_YOUR_PROJECT: m2187</profile>
-        <profile namespace="globus" key="queue">regular</profile>
     </site>
 </sitecatalog>

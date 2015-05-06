@@ -187,10 +187,6 @@ class RefinementWorkflow(object):
         untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=False)
         untarjob.uses(coherent_db, link=Link.OUTPUT, transfer=False)
 
-        untarjob.profile("globus", "jobtype", "single")
-        untarjob.profile("globus", "maxwalltime", "1")
-        untarjob.profile("globus", "count", "1")
-
         dax.addJob(untarjob)
 
         # For each temperature that was listed in the config file
@@ -251,14 +247,9 @@ class RefinementWorkflow(object):
             eqjob.uses(eq_coord, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=False)
-            if self.is_synthetic_workflow:
-                eqjob.profile("globus", "jobtype", "mpi")
-                eqjob.profile("globus", "maxwalltime", "1")
-                eqjob.profile("globus", "count", "8")
-            else:
-                eqjob.profile("globus", "jobtype", "mpi")
-                eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
-                eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
+
+            #     eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
+            #     eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
             dax.addJob(eqjob)
 
             # Production job
@@ -285,14 +276,8 @@ class RefinementWorkflow(object):
             prodjob.uses(eq_vel, link=Link.INPUT)
             prodjob.uses(prod_dcd, link=Link.OUTPUT, transfer=True)
 
-            if self.is_synthetic_workflow:
-                prodjob.profile("globus", "jobtype", "mpi")
-                prodjob.profile("globus", "maxwalltime", "6")
-                prodjob.profile("globus", "count", "8")
-            else:
-                prodjob.profile("globus", "jobtype", "mpi")
-                prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
-                prodjob.profile("globus", "count", self.getconf("production_cores"))
+                # prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
+                # prodjob.profile("globus", "count", self.getconf("production_cores"))
 
             dax.addJob(prodjob)
             dax.depends(prodjob, eqjob)
@@ -348,14 +333,8 @@ class RefinementWorkflow(object):
             incojob.uses(coordinates, link=Link.INPUT)
             incojob.uses(fqt_incoherent, link=Link.OUTPUT, transfer=True)
 
-            if self.is_synthetic_workflow:
-                incojob.profile("globus", "jobtype", "mpi")
-                incojob.profile("globus", "maxwalltime", "6")
-                incojob.profile("globus", "count", "8")
-            else:
-                incojob.profile("globus", "jobtype", "mpi")
-                incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
-                incojob.profile("globus", "count", self.getconf("sassena_cores"))
+                # incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
+                # incojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             dax.addJob(incojob)
             dax.depends(incojob, ptrajjob)
@@ -383,14 +362,8 @@ class RefinementWorkflow(object):
             cojob.uses(coordinates, link=Link.INPUT)
             cojob.uses(fqt_coherent, link=Link.OUTPUT, transfer=True)
 
-            if self.is_synthetic_workflow:
-                cojob.profile("globus", "jobtype", "mpi")
-                cojob.profile("globus", "maxwalltime", "6")
-                cojob.profile("globus", "count", "8")
-            else:
-                cojob.profile("globus", "jobtype", "mpi")
-                cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
-                cojob.profile("globus", "count", self.getconf("sassena_cores"))
+                # cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
+                # cojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             dax.addJob(cojob)
             dax.depends(cojob, prodjob)
