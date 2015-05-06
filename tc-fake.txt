@@ -7,8 +7,8 @@ tr namd {
 
 		profile globus "queue" "debug"
 		profile globus "jobtype" "single"
-		#profile globus "maxwalltime" "360"
-		profile globus "count" "4"
+		# profile globus "maxwalltime" "360"
+		# profile globus "count" "4"
 	}
 }
 
@@ -21,8 +21,8 @@ tr amber::ptraj {
 
 		profile globus "queue" "debug"
 		profile globus "jobtype" "single"
-		#profile globus "maxwalltime" "60"
-		profile globus "count" "1"
+		# profile globus "maxwalltime" "60"
+		# profile globus "count" "1"
 	}
 }
 
@@ -35,7 +35,7 @@ tr sassena {
 
 		profile globus "queue" "debug"
 		profile globus "jobtype" "single"
-		profile globus "count" "4"		
+		# profile globus "count" "4"
 		# profile globus "maxwalltime" "60"
 	}
 }

@@ -240,8 +240,12 @@ class RefinementWorkflow(object):
                     eqjob.addArguments(self.keg_params.output_file(task_label, output_file, eval(output_file).name))
 
                 self.keg_params.add_keg_params(eqjob, task_label)
+                eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime_synth"))
+                eqjob.profile("globus", "count", self.getconf("equilibrate_cores_synth"))
             else:
                 eqjob.addArguments(eq_conf)
+                eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
+                eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
 
             eqjob.uses(eq_conf, link=Link.INPUT)
             eqjob.uses(structure, link=Link.INPUT)
@@ -252,8 +256,7 @@ class RefinementWorkflow(object):
             eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=False)
 
-            #     eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
-            #     eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
+
             dax.addJob(eqjob)
 
             # Production job
@@ -268,8 +271,12 @@ class RefinementWorkflow(object):
                 task_label = "namd-prod"
                 prodjob.addArguments(self.keg_params.output_file(task_label, "prod_dcd", prod_dcd.name))
                 self.keg_params.add_keg_params(prodjob, task_label)
+                prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime_synth"))
+                prodjob.profile("globus", "count", self.getconf("production_cores_synth"))
             else:
                 prodjob.addArguments(prod_conf)
+                prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
+                prodjob.profile("globus", "count", self.getconf("production_cores"))
 
             prodjob.uses(prod_conf, link=Link.INPUT)
             prodjob.uses(structure, link=Link.INPUT)
@@ -279,9 +286,6 @@ class RefinementWorkflow(object):
             prodjob.uses(eq_xsc, link=Link.INPUT)
             prodjob.uses(eq_vel, link=Link.INPUT)
             prodjob.uses(prod_dcd, link=Link.OUTPUT, transfer=True)
-
-                # prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
-                # prodjob.profile("globus", "count", self.getconf("production_cores"))
 
             dax.addJob(prodjob)
             dax.depends(prodjob, eqjob)
@@ -300,19 +304,20 @@ class RefinementWorkflow(object):
                     ptrajjob.addArguments(self.keg_params.output_file(task_label, output_file, eval(output_file).name))
 
                 self.keg_params.add_keg_params(ptrajjob, task_label)
-
+                ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime_synth"))
+                ptrajjob.profile("globus", "count", self.getconf("ptraj_cores_synth"))
             else:
                 ptrajjob.addArguments(topfile)
                 ptrajjob.setStdin(ptraj_conf)
+                ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime"))
+                ptrajjob.profile("globus", "count", self.getconf("ptraj_cores"))
 
             ptrajjob.uses(topfile, link=Link.INPUT)
             ptrajjob.uses(ptraj_conf, link=Link.INPUT)
             ptrajjob.uses(prod_dcd, link=Link.INPUT)
             ptrajjob.uses(ptraj_fit, link=Link.OUTPUT, transfer=True)
             ptrajjob.uses(ptraj_dcd, link=Link.OUTPUT, transfer=True)
-            ptrajjob.profile("globus", "jobtype", "single")
-            ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime"))
-            ptrajjob.profile("globus", "count", self.getconf("ptraj_cores"))
+
             dax.addJob(ptrajjob)
             dax.depends(ptrajjob, prodjob)
 
@@ -328,17 +333,20 @@ class RefinementWorkflow(object):
                 incojob.addArguments(self.keg_params.output_file(task_label, "fqt_incoherent", fqt_incoherent.name))
 
                 self.keg_params.add_keg_params(incojob, task_label)
+                incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime_synth"))
+                incojob.profile("globus", "count", self.getconf("sassena_cores_synth"))
+
             else:
+                incojob.addArguments(incojob.profile("globus", "count", self.getconf("sassena_cores")))
                 incojob.addArguments("--config", incoherent_conf)
+                incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
+                incojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             incojob.uses(incoherent_conf, link=Link.INPUT)
             incojob.uses(ptraj_dcd, link=Link.INPUT)
             incojob.uses(incoherent_db, link=Link.INPUT)
             incojob.uses(coordinates, link=Link.INPUT)
             incojob.uses(fqt_incoherent, link=Link.OUTPUT, transfer=True)
-
-                # incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
-                # incojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             dax.addJob(incojob)
             dax.depends(incojob, ptrajjob)
@@ -356,18 +364,19 @@ class RefinementWorkflow(object):
                 cojob.addArguments(self.keg_params.output_file(task_label, "fqt_coherent", fqt_coherent.name))
 
                 self.keg_params.add_keg_params(cojob, task_label)
-
+                cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime_synth"))
+                cojob.profile("globus", "count", self.getconf("sassena_cores_synth"))
             else:
+                cojob.addArguments(cojob.profile("globus", "count", self.getconf("sassena_cores")))
                 cojob.addArguments("--config", coherent_conf)
+                cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
+                cojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             cojob.uses(coherent_conf, link=Link.INPUT)
             cojob.uses(ptraj_dcd, link=Link.INPUT)
             cojob.uses(coherent_db, link=Link.INPUT)
             cojob.uses(coordinates, link=Link.INPUT)
             cojob.uses(fqt_coherent, link=Link.OUTPUT, transfer=True)
-
-                # cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
-                # cojob.profile("globus", "count", self.getconf("sassena_cores"))
 
             dax.addJob(cojob)
             dax.depends(cojob, prodjob)
