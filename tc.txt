@@ -1,40 +1,56 @@
-tr namd {
-    site hopper {
-        pfn "/usr/common/usg/namd/2.9/bin/namd2"
-        arch "x86_64"
-        os "linux"
-        type "INSTALLED"
-        profile pegasus "exitcode.successmsg" "End of program"
-    }
+tr amber::ptraj {
+	site hopper {
+		#pfn "/global/homes/d/darek/cpptraj_wrapper.sh"
+		pfn "/usr/common/usg/amber/14/bin/cpptraj"
+		arch "x86_64"
+		os "LINUX"
+		type "INSTALLED"
+
+		profile globus "queue" "regular"
+		profile globus "jobtype" "single"
+		profile globus "maxwalltime" "60"
+		profile globus "count" "1"
+	}
 }
 
-tr amber::ptraj {
-    site hopper {
-        pfn "/usr/common/usg/amber/14/bin/cpptraj"
-        arch "x86_64"
-        os "linux"
-        type "INSTALLED"
-        profile pegasus "exitcode.successmsg" "Successfully read the input file"
-        profile pegasus "exitcode.successmsg" "Dumping accumulated results"
-    }
+tr namd {
+	site hopper {
+		pfn "/usr/common/usg/namd/2.9/bin/namd2"
+		#pfn "/global/homes/d/darek/namd_wrapper.sh"
+		arch "x86_64"
+		os "LINUX"
+		type "INSTALLED"
+
+		profile globus "queue" "regular"
+		profile globus "jobtype" "mpi"
+		profile globus "maxwalltime" "360"
+		profile globus "count" "288"
+	}
 }
 
 tr sassena {
-    site hopper {
-        pfn "/global/project/projectdirs/m1503/camm/sassena-v1.4.1/builds/head/sassena"
-        arch "x86_64"
-        os "linux"
-        type "INSTALLED"
-        profile pegasus "exitcode.successmsg" "Successfully finished..."
-    }
+	site hopper {
+		pfn "/global/homes/d/darek/sassena_wrapper.sh"
+		arch "x86_64"
+		os "LINUX"
+		type "INSTALLED"
+
+		profile globus "queue" "regular"
+		profile globus "jobtype" "single"
+		profile globus "count" "144"
+		profile globus "maxwalltime" "60"
+	}
 }
 
 tr tar {
-    site hopper {
-        pfn "/bin/tar"
-        arch "x86_64"
-        os "linux"
-        type "INSTALLED"
-    }
-}
+	site hopper {
+		pfn "/bin/tar"
+		arch "x86_64"
+		os "LINUX"
+		type "INSTALLED"
 
+		profile globus "queue" "debug"
+		profile globus "jobtype" "single"
+		profile globus "maxwalltime" "1"
+	}
+}
