@@ -333,7 +333,7 @@ class RefinementWorkflow(object):
                 incojob.profile("globus", "count", self.getconf("sassena_cores_synth"))
 
             else:
-                incojob.addArguments(incojob.profile("globus", "count", self.getconf("sassena_cores")))
+                incojob.addArguments(self.getconf("sassena_cores"))
                 incojob.addArguments("--config", incoherent_conf)
                 incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 incojob.profile("globus", "count", self.getconf("sassena_cores"))
@@ -363,7 +363,7 @@ class RefinementWorkflow(object):
                 cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime_synth"))
                 cojob.profile("globus", "count", self.getconf("sassena_cores_synth"))
             else:
-                cojob.addArguments(cojob.profile("globus", "count", self.getconf("sassena_cores")))
+                cojob.addArguments(self.getconf("sassena_cores"))
                 cojob.addArguments("--config", coherent_conf)
                 cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 cojob.profile("globus", "count", self.getconf("sassena_cores"))
