@@ -35,6 +35,8 @@ class RefinementWorkflow(object):
         self.temperatures = [x.strip() for x in self.getconf("temperatures").split(",")]
         self.equilibrate_steps = self.getconf("equilibrate_steps")
         self.production_steps = self.getconf("production_steps")
+        self.equilibrate_output = self.getconf("equilibrate_output")
+        self.production_output = self.getconf("production_output")
         self.pressure = self.getconf("pressure")
         self.charge = self.getconf("charge")
         self.structure = self.getconf("structure")
@@ -92,7 +94,8 @@ class RefinementWorkflow(object):
             "parameters": self.parameters,
             "outputname": "equilibrate_%s" % temperature,
             "extended_system": self.extended_system,
-            "timesteps": self.equilibrate_steps
+            "timesteps": self.equilibrate_steps,
+            "timeoutput": self.equilibrate_output
         }
         format_template("equilibrate.conf", path, **kw)
         self.add_replica(name, path)
@@ -110,7 +113,8 @@ class RefinementWorkflow(object):
             "parameters": self.parameters,
             "inputname": "equilibrate_%s" % temperature,
             "outputname": "production_%s" % temperature,
-            "timesteps": self.production_steps
+            "timesteps": self.production_steps,
+            "timeoutput": self.production_output
         }
         format_template("production.conf", path, **kw)
         self.add_replica(name, path)
