@@ -160,7 +160,8 @@ class RefinementWorkflow(object):
     def generate_dax(self):
         "Generate a workflow (DAX, config files, and replica catalog)"
         ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
-        dax = ADAG("refinement-%s" % ts)
+        # dax = ADAG("refinement-%s" % ts)
+        dax = ADAG(os.path.basename("%s-%s" % (self.outdir, ts)))
 
         # These are all the global input files for the workflow
         structure = File(self.structure)
