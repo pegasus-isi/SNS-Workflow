@@ -195,6 +195,8 @@ class RefinementWorkflow(object):
         untarjob.profile("globus", "maxwalltime", "1")
         untarjob.profile("globus", "count", "1")
 
+        untarjob.metadata( "nAtom", "10000" )
+
         dax.addJob(untarjob)
 
         # For each temperature that was listed in the config file
@@ -263,6 +265,9 @@ class RefinementWorkflow(object):
                 eqjob.profile("globus", "jobtype", "mpi")
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
+
+            eqjob.metadata( "nAtom", "10000" )
+
             dax.addJob(eqjob)
 
             # Production job
@@ -298,6 +303,8 @@ class RefinementWorkflow(object):
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
                 prodjob.profile("globus", "count", self.getconf("production_cores"))
 
+            prodjob.metadata( "nAtom", "10000" )
+
             dax.addJob(prodjob)
             dax.depends(prodjob, eqjob)
 
@@ -328,6 +335,9 @@ class RefinementWorkflow(object):
             ptrajjob.profile("globus", "jobtype", "single")
             ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime"))
             ptrajjob.profile("globus", "count", self.getconf("ptraj_cores"))
+
+            ptrajjob.metadata("nAtom", "10000")
+
             dax.addJob(ptrajjob)
             dax.depends(ptrajjob, prodjob)
 
@@ -360,6 +370,8 @@ class RefinementWorkflow(object):
                 incojob.profile("globus", "jobtype", "mpi")
                 incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 incojob.profile("globus", "count", self.getconf("sassena_cores"))
+
+            incojob.metadata("nAtom", "100")
 
             dax.addJob(incojob)
             dax.depends(incojob, ptrajjob)
@@ -395,6 +407,8 @@ class RefinementWorkflow(object):
                 cojob.profile("globus", "jobtype", "mpi")
                 cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 cojob.profile("globus", "count", self.getconf("sassena_cores"))
+
+            cojob.metadata("nAtom", "100")
 
             dax.addJob(cojob)
             dax.depends(cojob, prodjob)

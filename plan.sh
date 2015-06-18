@@ -17,6 +17,11 @@ else
     exit 1
 fi
 
+if [ -z "$ASPEN_HOME" ]; then
+    echo "Set ASPEN_HOME"
+    exit 1
+fi
+
 DIR=$(cd $(dirname $0) && pwd)
 INPUT_DIR=$DIR/inputs
 SUBMIT_DIR=$WORKFLOW_DIR/submit
@@ -25,6 +30,8 @@ TC=$DIR/tc.txt
 RC=$WORKFLOW_DIR/rc.txt
 SC=$DIR/sites.xml
 PP=$DIR/pegasus.properties
+
+export ASPENPATH=$ASPEN_HOME/models
 
 echo "Planning workflow..."
 pegasus-plan \
