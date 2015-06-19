@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SITE=hopper
-OUTPUT_SITE=hopper
+OUTPUT_SITE=local
 
 if [ $# -lt 2 ]; then
     echo "Usage: $0 WORKFLOW_DIR CONFIG_FILE <--synthetic|--hydrogen>"

@@ -160,7 +160,8 @@ class RefinementWorkflow(object):
     def generate_dax(self):
         "Generate a workflow (DAX, config files, and replica catalog)"
         ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
-        dax = ADAG("refinement-%s" % ts)
+        #dax = ADAG("refinement-%s" % ts)
+	dax = ADAG(os.path.basename(self.outdir))
 
         # These are all the global input files for the workflow
         structure = File(self.structure)
@@ -244,6 +245,7 @@ class RefinementWorkflow(object):
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime_synth"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores_synth"))
             else:
+	        eqjob.addArguments(self.getconf("equilibrate_cores"))
                 eqjob.addArguments(eq_conf)
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
@@ -276,6 +278,7 @@ class RefinementWorkflow(object):
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime_synth"))
                 prodjob.profile("globus", "count", self.getconf("production_cores_synth"))
             else:
+	        prodjob.addArguments(self.getconf("production_cores"))
                 prodjob.addArguments(prod_conf)
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
                 prodjob.profile("globus", "count", self.getconf("production_cores"))

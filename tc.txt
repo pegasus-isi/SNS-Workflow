@@ -1,7 +1,7 @@
 tr amber::ptraj {
 	site hopper {
-		#pfn "/global/homes/d/darek/cpptraj_wrapper.sh"
-		pfn "/usr/common/usg/amber/14/bin/cpptraj"
+		pfn "/global/homes/d/darek/cpptraj_wrapper.sh"
+		#pfn "/usr/common/usg/amber/14/bin/cpptraj"
 		arch "x86_64"
 		os "LINUX"
 		type "INSTALLED"
@@ -15,14 +15,16 @@ tr amber::ptraj {
 
 tr namd {
 	site hopper {
-		pfn "/usr/common/usg/namd/2.9/bin/namd2"
-		#pfn "/global/homes/d/darek/namd_wrapper.sh"
+		#pfn "/usr/common/usg/namd/2.9/bin/namd2"
+		pfn "/global/homes/d/darek/namd_wrapper.sh"
 		arch "x86_64"
 		os "LINUX"
 		type "INSTALLED"
 
 		profile globus "queue" "regular"
-		profile globus "jobtype" "mpi"
+		profile globus "jobtype" "single"
+
+		#profile globus "jobtype" "mpi"
 		# profile globus "maxwalltime" "360"
 		# profile globus "count" "288"
 	}
@@ -37,6 +39,7 @@ tr sassena {
 
 		profile globus "queue" "regular"
 		profile globus "jobtype" "single"
+
 		# profile globus "count" "144"
 		# profile globus "maxwalltime" "60"
 	}
@@ -49,7 +52,7 @@ tr tar {
 		os "LINUX"
 		type "INSTALLED"
 
-		profile globus "queue" "debug"
+		profile globus "queue" "regular"
 		profile globus "jobtype" "single"
 		profile globus "maxwalltime" "1"
 	}
