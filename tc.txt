@@ -6,7 +6,7 @@ tr amber::ptraj {
 		os "LINUX"
 		type "INSTALLED"
 
-		profile globus "queue" "regular"
+		profile globus "queue" "debug"
 		profile globus "jobtype" "single"
 		# profile globus "maxwalltime" "60"
 		# profile globus "count" "1"
