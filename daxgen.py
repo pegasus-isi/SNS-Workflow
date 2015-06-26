@@ -243,11 +243,13 @@ class RefinementWorkflow(object):
                 self.keg_params.add_keg_params(eqjob, task_label)
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime_synth"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores_synth"))
+                eqjob.profile("condor", "machine_count", self.getconf("equilibrate_cores_synth"))
             else:
                 eqjob.addArguments(self.getconf("equilibrate_cores"))
                 eqjob.addArguments(eq_conf)
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
+                eqjob.profile("condor", "machine_count", self.getconf("equilibrate_cores"))
 
             eqjob.uses(eq_conf, link=Link.INPUT)
             eqjob.uses(structure, link=Link.INPUT)
@@ -275,11 +277,13 @@ class RefinementWorkflow(object):
                 self.keg_params.add_keg_params(prodjob, task_label)
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime_synth"))
                 prodjob.profile("globus", "count", self.getconf("production_cores_synth"))
+                prodjob.profile("condor", "machine_count", self.getconf("production_cores_synth"))
             else:
                 prodjob.addArguments(self.getconf("production_cores"))
                 prodjob.addArguments(prod_conf)
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
                 prodjob.profile("globus", "count", self.getconf("production_cores"))
+                prodjob.profile("condor", "machine_count", self.getconf("production_cores"))
 
             prodjob.uses(prod_conf, link=Link.INPUT)
             prodjob.uses(structure, link=Link.INPUT)
@@ -309,11 +313,13 @@ class RefinementWorkflow(object):
                 self.keg_params.add_keg_params(ptrajjob, task_label)
                 ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime_synth"))
                 ptrajjob.profile("globus", "count", self.getconf("ptraj_cores_synth"))
+                ptrajjob.profile("condor", "machine_count", self.getconf("ptraj_cores_synth"))
             else:
                 ptrajjob.addArguments(topfile)
                 ptrajjob.setStdin(ptraj_conf)
                 ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime"))
                 ptrajjob.profile("globus", "count", self.getconf("ptraj_cores"))
+                ptrajjob.profile("condor", "machine_count", self.getconf("ptraj_cores"))
 
             ptrajjob.uses(topfile, link=Link.INPUT)
             ptrajjob.uses(ptraj_conf, link=Link.INPUT)
@@ -339,12 +345,13 @@ class RefinementWorkflow(object):
                 self.keg_params.add_keg_params(incojob, task_label)
                 incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime_synth"))
                 incojob.profile("globus", "count", self.getconf("sassena_cores_synth"))
-
+                incojob.profile("condor", "machine_count", self.getconf("sassena_cores_synth"))
             else:
                 incojob.addArguments(self.getconf("sassena_cores"))
                 incojob.addArguments("--config", incoherent_conf)
                 incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 incojob.profile("globus", "count", self.getconf("sassena_cores"))
+                incojob.profile("condor", "machine_count", self.getconf("sassena_cores"))
 
             incojob.uses(incoherent_conf, link=Link.INPUT)
             incojob.uses(ptraj_dcd, link=Link.INPUT)
@@ -371,11 +378,13 @@ class RefinementWorkflow(object):
                 self.keg_params.add_keg_params(cojob, task_label)
                 cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime_synth"))
                 cojob.profile("globus", "count", self.getconf("sassena_cores_synth"))
+                cojob.profile("condor", "machine_count", self.getconf("sassena_cores_synth"))
             else:
                 cojob.addArguments(self.getconf("sassena_cores"))
                 cojob.addArguments("--config", coherent_conf)
                 cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 cojob.profile("globus", "count", self.getconf("sassena_cores"))
+                cojob.profile("condor", "machine_count", self.getconf("sassena_cores"))
 
             cojob.uses(coherent_conf, link=Link.INPUT)
             cojob.uses(ptraj_dcd, link=Link.INPUT)
@@ -435,4 +444,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
