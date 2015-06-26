@@ -12,7 +12,7 @@ DAXGEN_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(DAXGEN_DIR, "templates")
 
 def format_template(name, outfile, **kwargs):
-    "This fills in the values for the template called 'name' and writes it to 'outfile'"
+    """This fills in the values for the template called 'name' and writes it to 'outfile'"""
     templatefile = os.path.join(TEMPLATE_DIR, name)
     template = open(templatefile).read()
     formatter = string.Formatter()
@@ -25,7 +25,7 @@ def format_template(name, outfile, **kwargs):
 
 class RefinementWorkflow(object):
     def __init__(self, outdir, config, is_synthetic_workflow):
-        "'outdir' is the directory where the workflow is written, and 'config' is a ConfigParser object"
+        """'outdir' is the directory where the workflow is written, and 'config' is a ConfigParser object"""
         self.outdir = outdir
         self.config = config
         self.daxfile = os.path.join(self.outdir, "dax.xml")
@@ -159,8 +159,8 @@ class RefinementWorkflow(object):
 
     def generate_dax(self):
         "Generate a workflow (DAX, config files, and replica catalog)"
-        ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
-        dax = ADAG(os.path.basename("%s" % (self.outdir)))
+        # ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        dax = ADAG(os.path.basename("%s" % self.outdir))
 
         # These are all the global input files for the workflow
         structure = File(self.structure)
@@ -188,8 +188,8 @@ class RefinementWorkflow(object):
             untarjob.addArguments("-xzvf", sassena_db)
 
         untarjob.uses(sassena_db, link=Link.INPUT)
-        untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=False)
-        untarjob.uses(coherent_db, link=Link.OUTPUT, transfer=False)
+        untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=True)
+        untarjob.uses(coherent_db, link=Link.OUTPUT, transfer=True)
 
         dax.addJob(untarjob)
 
@@ -237,14 +237,14 @@ class RefinementWorkflow(object):
 
                 task_label = "namd-eq"
 
-                for output_file in [ "eq_coord", "eq_xsc", "eq_vel" ]:
+                for output_file in ["eq_coord", "eq_xsc", "eq_vel"]:
                     eqjob.addArguments(self.keg_params.output_file(task_label, output_file, eval(output_file).name))
 
                 self.keg_params.add_keg_params(eqjob, task_label)
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime_synth"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores_synth"))
             else:
-	        eqjob.addArguments(self.getconf("equilibrate_cores"))
+                eqjob.addArguments(self.getconf("equilibrate_cores"))
                 eqjob.addArguments(eq_conf)
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
@@ -254,10 +254,9 @@ class RefinementWorkflow(object):
             eqjob.uses(coordinates, link=Link.INPUT)
             eqjob.uses(parameters, link=Link.INPUT)
             eqjob.uses(extended_system, link=Link.INPUT)
-            eqjob.uses(eq_coord, link=Link.OUTPUT, transfer=False)
-            eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=False)
-            eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=False)
-
+            eqjob.uses(eq_coord, link=Link.OUTPUT, transfer=True)
+            eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=True)
+            eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=True)
 
             dax.addJob(eqjob)
 
@@ -277,7 +276,7 @@ class RefinementWorkflow(object):
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime_synth"))
                 prodjob.profile("globus", "count", self.getconf("production_cores_synth"))
             else:
-	        prodjob.addArguments(self.getconf("production_cores"))
+                prodjob.addArguments(self.getconf("production_cores"))
                 prodjob.addArguments(prod_conf)
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
                 prodjob.profile("globus", "count", self.getconf("production_cores"))
@@ -304,7 +303,7 @@ class RefinementWorkflow(object):
 
                 task_label = "amber-ptraj"
 
-                for output_file in [ "ptraj_fit", "ptraj_dcd" ]:
+                for output_file in ["ptraj_fit", "ptraj_dcd"]:
                     ptrajjob.addArguments(self.keg_params.output_file(task_label, output_file, eval(output_file).name))
 
                 self.keg_params.add_keg_params(ptrajjob, task_label)
