@@ -28,6 +28,7 @@ PP=$DIR/pegasus.properties
 
 echo "Planning workflow..."
 pegasus-plan \
+    -Dpegasus.metrics.app=sns \
     -Dpegasus.catalog.site.file=$SC \
     -Dpegasus.catalog.replica=File \
     -Dpegasus.catalog.replica.file=$RC \
