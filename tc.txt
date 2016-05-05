@@ -1,6 +1,6 @@
 tr namd {
-    site hopper {
-        pfn "/usr/common/usg/namd/2.9/bin/namd2"
+    site nersc {
+        pfn "/usr/common/usg/namd/2.10/bin/namd2"
         arch "x86_64"
         os "linux"
         type "INSTALLED"
@@ -9,7 +9,7 @@ tr namd {
 }
 
 tr amber::ptraj {
-    site hopper {
+    site nersc {
         pfn "/usr/common/usg/amber/14/bin/cpptraj"
         arch "x86_64"
         os "linux"
@@ -18,8 +18,8 @@ tr amber::ptraj {
 }
 
 tr sassena {
-    site hopper {
-        pfn "/global/project/projectdirs/m1503/camm/sassena-v1.4.1/builds/head/sassena"
+    site nersc {
+        pfn "/global/project/projectdirs/m1503/camm/sassena-v1.4.1/builds/edison/sassena"
         arch "x86_64"
         os "linux"
         type "INSTALLED"
@@ -28,7 +28,7 @@ tr sassena {
 }
 
 tr tar {
-    site hopper {
+    site nersc {
         pfn "/bin/tar"
         arch "x86_64"
         os "linux"

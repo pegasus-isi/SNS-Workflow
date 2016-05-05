@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SITE=hopper
-OUTPUT_SITE=hopper
+SITE=nersc
+OUTPUT_SITE=nersc
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 WORKFLOW_DIR"
