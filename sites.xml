@@ -9,7 +9,7 @@
 
     <site handle="nersc" arch="x86_64" os="LINUX">
         <grid type="gt5" contact="edisongrid.nersc.gov/jobmanager" scheduler="Fork" jobtype="auxillary"/>
-        <grid type="gt5" contact="edisongrid.nersc.gov/jobmanager-pbs" scheduler="PBS" jobtype="compute"/>
+        <grid type="gt5" contact="edisongrid.nersc.gov/jobmanager-slurm" scheduler="PBS" jobtype="compute"/>
         <directory type="shared-scratch" path="REPLACE_WITH_YOUR_SCRATCH_DIR: /scratch1/scratchdirs/juve">
             <file-server operation="all" url="REPLACE_WITH_YOUR_SCRATCH_DIR: gsiftp://edisongrid.nersc.gov/scratch1/scratchdirs/juve"/>
         </directory>
