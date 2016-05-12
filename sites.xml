@@ -10,14 +10,16 @@
     <site handle="nersc" arch="x86_64" os="LINUX">
         <grid type="gt5" contact="edisongrid.nersc.gov/jobmanager" scheduler="Fork" jobtype="auxillary"/>
         <grid type="gt5" contact="edisongrid.nersc.gov/jobmanager-slurm" scheduler="PBS" jobtype="compute"/>
-        <directory type="shared-scratch" path="REPLACE_WITH_YOUR_SCRATCH_DIR: /scratch1/scratchdirs/juve">
-            <file-server operation="all" url="REPLACE_WITH_YOUR_SCRATCH_DIR: gsiftp://edisongrid.nersc.gov/scratch1/scratchdirs/juve"/>
+        <directory type="shared-scratch" path="/scratch1/scratchdirs/juve">
+            <file-server operation="all" url="gsiftp://edisongrid.nersc.gov/scratch1/scratchdirs/juve"/>
         </directory>
-        <directory type="shared-storage" path="REPLACE_WITH_YOUR_STORAGE_DIR: /project/projectdirs/m2187/sns/juve/run5">
-            <file-server operation="all" url="REPLACE_WITH_YOUR_STORAGE_DIR: gsiftp://edisongrid.nersc.gov/project/projectdirs/m2187/sns/juve/run5" />
+        <directory type="shared-storage" path="/project/projectdirs/m2187/sns/juve">
+            <file-server operation="all" url="gsiftp://edisongrid.nersc.gov/project/projectdirs/m2187/sns/juve"/>
         </directory>
-        <profile namespace="env" key="PEGASUS_HOME">/project/projectdirs/m2187/pegasus-4.6.1</profile>
+        <!--<profile namespace="env" key="PEGASUS_HOME">/project/projectdirs/m2187/pegasus-4.6.1</profile>-->
+        <profile namespace="env" key="PEGASUS_HOME">/project/projectdirs/m2187/pegasus-4.7.0panorama</profile>
         <profile namespace="globus" key="project">m2187</profile>
         <profile namespace="globus" key="queue">regular</profile>
+        <profile namespace="pegasus" key="gridstart.arguments">-m 10</profile>
     </site>
 </sitecatalog>

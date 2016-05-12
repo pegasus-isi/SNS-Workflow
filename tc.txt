@@ -1,11 +1,11 @@
 tr namd {
     site nersc {
-        pfn "/usr/common/usg/namd/2.10/bin/namd2"
+        pfn "/project/projectdirs/m2187/sns/bin/namd_wrapper"
         arch "x86_64"
         os "linux"
         type "INSTALLED"
         profile pegasus "exitcode.successmsg" "End of program"
-        profile globus "jobtype" "mpi"
+        profile globus "jobtype" "single"
     }
 }
 
@@ -21,12 +21,12 @@ tr amber::ptraj {
 
 tr sassena {
     site nersc {
-        pfn "/global/project/projectdirs/m1503/camm/sassena-v1.4.1/builds/edison/sassena"
+        pfn "/project/projectdirs/m2187/sns/bin/sassena_wrapper"
         arch "x86_64"
         os "linux"
         type "INSTALLED"
         profile pegasus "exitcode.successmsg" "Successfully finished..."
-        profile globus "jobtype" "mpi"
+        profile globus "jobtype" "single"
     }
 }
 
