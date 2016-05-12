@@ -5,6 +5,7 @@ tr namd {
         os "linux"
         type "INSTALLED"
         profile pegasus "exitcode.successmsg" "End of program"
+        profile globus "jobtype" "mpi"
     }
 }
 
@@ -14,6 +15,7 @@ tr amber::ptraj {
         arch "x86_64"
         os "linux"
         type "INSTALLED"
+        profile globus "jobtype" "single"
     }
 }
 
@@ -24,6 +26,7 @@ tr sassena {
         os "linux"
         type "INSTALLED"
         profile pegasus "exitcode.successmsg" "Successfully finished..."
+        profile globus "jobtype" "mpi"
     }
 }
 
@@ -33,6 +36,7 @@ tr tar {
         arch "x86_64"
         os "linux"
         type "INSTALLED"
+        profile globus "jobtype" "single"
     }
 }
 

@@ -191,7 +191,6 @@ class RefinementWorkflow(object):
         untarjob.uses(incoherent_db, link=Link.OUTPUT, transfer=False)
         untarjob.uses(coherent_db, link=Link.OUTPUT, transfer=False)
 
-        untarjob.profile("globus", "jobtype", "single")
         untarjob.profile("globus", "maxwalltime", "1")
         untarjob.profile("globus", "count", "1")
 
@@ -256,11 +255,9 @@ class RefinementWorkflow(object):
             eqjob.uses(eq_xsc, link=Link.OUTPUT, transfer=False)
             eqjob.uses(eq_vel, link=Link.OUTPUT, transfer=False)
             if self.is_synthetic_workflow:
-                eqjob.profile("globus", "jobtype", "mpi")
                 eqjob.profile("globus", "maxwalltime", "1")
                 eqjob.profile("globus", "count", "8")
             else:
-                eqjob.profile("globus", "jobtype", "mpi")
                 eqjob.profile("globus", "maxwalltime", self.getconf("equilibrate_maxwalltime"))
                 eqjob.profile("globus", "count", self.getconf("equilibrate_cores"))
             dax.addJob(eqjob)
@@ -290,11 +287,9 @@ class RefinementWorkflow(object):
             prodjob.uses(prod_dcd, link=Link.OUTPUT, transfer=True)
 
             if self.is_synthetic_workflow:
-                prodjob.profile("globus", "jobtype", "mpi")
                 prodjob.profile("globus", "maxwalltime", "6")
                 prodjob.profile("globus", "count", "8")
             else:
-                prodjob.profile("globus", "jobtype", "mpi")
                 prodjob.profile("globus", "maxwalltime", self.getconf("production_maxwalltime"))
                 prodjob.profile("globus", "count", self.getconf("production_cores"))
 
@@ -325,7 +320,6 @@ class RefinementWorkflow(object):
             ptrajjob.uses(prod_dcd, link=Link.INPUT)
             ptrajjob.uses(ptraj_fit, link=Link.OUTPUT, transfer=True)
             ptrajjob.uses(ptraj_dcd, link=Link.OUTPUT, transfer=True)
-            ptrajjob.profile("globus", "jobtype", "single")
             ptrajjob.profile("globus", "maxwalltime", self.getconf("ptraj_maxwalltime"))
             ptrajjob.profile("globus", "count", self.getconf("ptraj_cores"))
             dax.addJob(ptrajjob)
@@ -353,11 +347,9 @@ class RefinementWorkflow(object):
             incojob.uses(fqt_incoherent, link=Link.OUTPUT, transfer=True)
 
             if self.is_synthetic_workflow:
-                incojob.profile("globus", "jobtype", "mpi")
                 incojob.profile("globus", "maxwalltime", "6")
                 incojob.profile("globus", "count", "8")
             else:
-                incojob.profile("globus", "jobtype", "mpi")
                 incojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 incojob.profile("globus", "count", self.getconf("sassena_cores"))
 
@@ -388,11 +380,9 @@ class RefinementWorkflow(object):
             cojob.uses(fqt_coherent, link=Link.OUTPUT, transfer=True)
 
             if self.is_synthetic_workflow:
-                cojob.profile("globus", "jobtype", "mpi")
                 cojob.profile("globus", "maxwalltime", "6")
                 cojob.profile("globus", "count", "8")
             else:
-                cojob.profile("globus", "jobtype", "mpi")
                 cojob.profile("globus", "maxwalltime", self.getconf("sassena_maxwalltime"))
                 cojob.profile("globus", "count", self.getconf("sassena_cores"))
 
